@@ -21,6 +21,7 @@ install:
 	until oc get configmap odh-trusted-ca-bundle -n $$KFP_NAMESPACE \
 		-o jsonpath='{.data.ca-bundle\.crt}' 2>/dev/null | grep -q CERTIFICATE; do sleep 5; done && \
 	\
+	$(MAKE) apply-console-src && \
 	echo "==> Running helm upgrade..." && \
 	helm upgrade --install agent-mesh-for-sw resources/helm \
 		--no-hooks \
@@ -45,7 +46,8 @@ install:
 		--set pipelineTools.image.name="$$KFP_PIPELINE_TOOLS_IMAGE_NAME" \
 		--set pipelineTools.image.tag="$$KFP_PIPELINE_TOOLS_IMAGE_TAG" \
 		--set clusterDomain="$(CLUSTER_DOMAIN)" \
-		--set mlflowGatewayHost="$(GATEWAY_HOST)"
+		--set mlflowGatewayHost="$(GATEWAY_HOST)" \
+		--set console.enabled=true
 	$(MAKE) apply-secrets
 	$(MAKE) deploy-otel
 	@set -a && . $(ENV_FILE) && set +a && \
@@ -303,3 +305,56 @@ deploy-otel:
 		--set otel.enabled=true \
 		--set otel.name=$$OTEL_SERVICE_NAME \
 		-s templates/opentelemetry.yaml | oc apply -f -
+
+apply-console-src:
+	@set -a && . $(ENV_FILE) && set +a && \
+	echo "==> Publishing console UI ConfigMap..." && \
+	oc create configmap code-understanding-console-ui \
+		--from-file=app.py=ui/app.py \
+		--from-file=cluster.py=ui/cluster.py \
+		--from-file=catalog.py=ui/catalog.py \
+		--from-file=indexes.py=ui/indexes.py \
+		--from-file=requirements.txt=ui/requirements.txt \
+		--from-file=config.toml=ui/.streamlit/config.toml \
+		--from-file=repo_list.json=workflows/examples/code_understanding/assets/repos/repo_list.json \
+		-n $$KFP_NAMESPACE --dry-run=client -o yaml | oc apply -f - && \
+	echo "==> Publishing job scripts ConfigMap..." && \
+	oc create configmap code-understanding-job-scripts \
+		--from-file=run_pipelines.sh=workflows/examples/code_understanding/scripts/run_pipelines.sh \
+		--from-file=mlflow_asset_loader.py=workflows/examples/code_understanding/loaders/mlflow_asset_loader.py \
+		--from-file=default_asset_loader.py=workflows/examples/code_understanding/loaders/default_asset_loader.py \
+		-n $$KFP_NAMESPACE --dry-run=client -o yaml | oc apply -f -
+
+run-console:
+	@set -a && . $(ENV_FILE) && set +a && \
+	AGENTMESH_REPO_URL="$(GIT_REPO_URL)" AGENTMESH_REPO_REF="$(GIT_REPO_BRANCH)" \
+	KFP_NAMESPACE="$$KFP_NAMESPACE" \
+	python3 -m pip install --quiet -r ui/requirements.txt && \
+	python3 -m streamlit run ui/app.py --server.headless true
+
+deploy-console:
+	@$(MAKE) apply-console-src
+	@set -a && . $(ENV_FILE) && set +a && \
+	echo "==> Deploying Code Understanding console..." && \
+	helm template agent-mesh-for-sw resources/helm \
+		--set namespace="$$KFP_NAMESPACE" \
+		--set requester="$$(oc whoami)" \
+		--set repoUrl="$(GIT_REPO_URL)" \
+		--set repoRef="$(GIT_REPO_BRANCH)" \
+		--set console.enabled=true \
+		-s templates/console.yaml | oc apply -n $$KFP_NAMESPACE -f - && \
+	oc rollout restart deployment/code-understanding-console -n $$KFP_NAMESPACE && \
+	oc rollout status deployment/code-understanding-console -n $$KFP_NAMESPACE --timeout=300s && \
+	ROUTE_HOST="$$(oc get route code-understanding-console -n $$KFP_NAMESPACE -o jsonpath='{.spec.host}')" && \
+	echo "" && \
+	echo "==> Open the console in your browser:" && \
+	echo "    https://$$ROUTE_HOST" && \
+	echo "" && \
+	echo "    (Ignore localhost/pod IPs in 'oc logs' — those are inside the cluster only.)" && \
+	echo "    Or run: make port-forward-console  then open http://localhost:8501" && \
+	echo ""
+
+port-forward-console:
+	@set -a && . $(ENV_FILE) && set +a && \
+	echo "==> Forwarding http://localhost:8501 -> code-understanding-console:8501" && \
+	oc port-forward svc/code-understanding-console 8501:8501 -n $$KFP_NAMESPACE
