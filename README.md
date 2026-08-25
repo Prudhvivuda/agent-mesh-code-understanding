@@ -11,6 +11,7 @@ Contents
   - [(Optional) Building the Container Images](#optional-building-the-container-images)
   - [Installing via Makefile](#installing-via-makefile)
 - [Code Understanding Console](#code-understanding-console)
+- [OpenShift Console Plugin](#openshift-console-plugin)
 - [Running the Code Understanding Workflow](#running-the-code-understanding-workflow)
 - [Running Adhoc Queries](#running-adhoc-queries)
 - [Integrating with other tools](#integrating-with-other-tools)
@@ -149,6 +150,29 @@ make port-forward-console
 
 The console is also deployed at the end of `make install`.
 
+## OpenShift Console Plugin
+
+Embed the Code Understanding Streamlit UI in the OpenShift web console (Administrator perspective).
+
+**Prerequisite:** deploy the Streamlit console first (`feature/code-understanding-streamlit` PR) so the `code-understanding-console` Route exists.
+
+Build and deploy the dynamic plugin:
+
+```
+make deploy-console-plugin
+```
+
+Then open:
+
+- **Application launcher** (grid menu, top right) → **Code Understanding**
+- Direct URL: `https://<openshift-console-host>/code-understanding`
+
+Navigation also appears under **Administrator** → **Home** → **Code Understanding**.
+
+The plugin is enabled cluster-wide via `consoles.operator.openshift.io/cluster`. Re-run `make enable-console-plugin` if needed.
+
+Built for OpenShift **4.21** (`@console/pluginAPI: ^4.21.0`). The plugin backend serves HTTPS on port 9443 with an OpenShift serving certificate.
+
 ## Running the Code Understanding Workflow
 1. To run the **Code Understanding** pipeline for a single repository, run:
 ```make run-pipelines ARGS="--single-repo"```
@@ -215,7 +239,6 @@ representation of the codebase that can be used for querying.
 The **Data Analysis** sub-workflow is used to query the generated GraphRAG index using the GraphRAG SDK.
 It includes both canned and adhoc queries that can be used to explore the 
 code and generate assets for the refactoring catalog, including a migration plan.
-
 
 
 
