@@ -77,4 +77,5 @@ otel:
 console:
   enabled: true
   replicas: 1
-  image: registry.access.redhat.com/ubi9/python-311
+  image: ""
+  imagePullPolicy: Always
