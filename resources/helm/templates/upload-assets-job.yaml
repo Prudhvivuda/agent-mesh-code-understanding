@@ -33,8 +33,6 @@ spec:
               sys.path.insert(0, code_dir)
               from loaders.mlflow_asset_loader import MlFlowAssetLoader
 
-              os.environ.pop("MLFLOW_WORKSPACE", None)
-
               mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "https://mlflow.redhat-ods-applications.svc:8443"))
 
               MlFlowAssetLoader().upload_all_assets(os.path.join(code_dir, 'assets'))

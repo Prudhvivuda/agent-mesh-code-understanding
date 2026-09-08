@@ -41,7 +41,6 @@ class MlFlowAssetLoader(AssetLoader):
 
             requests.Session.send = _send_with_forwarded_token
 
-        os.environ.pop("MLFLOW_WORKSPACE", None)
 
     def _get_absolute_artifact_uri(self,
                                    asset_file_path: str,
