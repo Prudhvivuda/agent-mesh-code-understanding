@@ -30,6 +30,7 @@ class MlFlowAssetLoader(AssetLoader):
                 os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
 
         _token = os.environ.get("MLFLOW_TRACKING_TOKEN")
+        _workspace = os.environ.pop("MLFLOW_WORKSPACE", None)
 
         if _token:
 
@@ -37,6 +38,8 @@ class MlFlowAssetLoader(AssetLoader):
 
             def _send_with_forwarded_token(self, request, **kwargs):
                 request.headers["X-Forwarded-Access-Token"] = _token
+                if _workspace:
+                    request.headers["X-MLFLOW-WORKSPACE"] = _workspace
                 return _orig_send(self, request, **kwargs)
 
             requests.Session.send = _send_with_forwarded_token

@@ -38,6 +38,7 @@ class MlFlowCustomEvaluator(CustomEvaluator):
                 os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
 
         _token = os.environ.get("MLFLOW_TRACKING_TOKEN")
+        _workspace = os.environ.pop("MLFLOW_WORKSPACE", None)
 
         if _token:
 
@@ -45,11 +46,11 @@ class MlFlowCustomEvaluator(CustomEvaluator):
 
             def _send_with_forwarded_token(self, request, **kwargs):
                 request.headers["X-Forwarded-Access-Token"] = _token
+                if _workspace:
+                    request.headers["X-MLFLOW-WORKSPACE"] = _workspace
                 return _orig_send(self, request, **kwargs)
 
             requests.Session.send = _send_with_forwarded_token
-
-        os.environ.pop("MLFLOW_WORKSPACE", None)
 
     def _judge_model_uri(self) -> str:
         """Returns the MLflow judge model URI, using an OpenAI-compatible endpoint."""
