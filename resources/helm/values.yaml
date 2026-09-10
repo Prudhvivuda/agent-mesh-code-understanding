@@ -2,6 +2,7 @@ namespace: demo
 requester: ""
 kfpHost: ""
 clusterDomain: ""
+mlflowGatewayHost: ""
 deployNotebooks: false
 
 repoUrl: ""

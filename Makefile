@@ -3,6 +3,7 @@ ENV_FILE            	?= ./.env
 GIT_REPO_URL        	:= $(shell git remote get-url origin 2>/dev/null | sed 's|^git@\([^:]*\):\(.*\)$$|https://\1/\2|')
 GIT_REPO_BRANCH     	:= $(shell git branch --show-current 2>/dev/null)
 CLUSTER_DOMAIN      	:= $(shell oc get ingress.config cluster -o jsonpath='{.spec.domain}' 2>/dev/null)
+GATEWAY_HOST        	:= $(shell oc get gateway data-science-gateway -n openshift-ingress -o jsonpath='{.status.addresses[0].value}' 2>/dev/null)
 PIPELINE_GIT_REPO   	?=
 PIPELINE_GIT_BRANCH 	?=
 PIPELINE_GIT_REPO_LIST	?=
@@ -40,7 +41,8 @@ install:
 		--set pipelineTools.image.registry="$$KFP_IMAGE_REGISTRY" \
 		--set pipelineTools.image.name="$$KFP_PIPELINE_TOOLS_IMAGE_NAME" \
 		--set pipelineTools.image.tag="$$KFP_PIPELINE_TOOLS_IMAGE_TAG" \
-		--set clusterDomain="$(CLUSTER_DOMAIN)"
+		--set clusterDomain="$(CLUSTER_DOMAIN)" \
+		--set mlflowGatewayHost="$(GATEWAY_HOST)"
 	$(MAKE) apply-secrets
 	@set -a && . $(ENV_FILE) && set +a && \
 	if [ "$$ASSET_LOADER" = "mlflow" ]; then \
@@ -120,7 +122,7 @@ apply-secrets:
 	fi || true && \
 	oc patch secret code-understanding-env -n $$KFP_NAMESPACE \
 		--type=merge \
-		-p "{\"stringData\":{\"MLFLOW_WORKSPACE\":\"$$KFP_NAMESPACE\"}}"
+		-p "{\"stringData\":{\"MLFLOW_NAMESPACE\":\"$$KFP_NAMESPACE\"}}"
 
 build-images:
 	@set -a && . $(ENV_FILE) && set +a && \
@@ -183,6 +185,7 @@ upload-mlflow-assets:
 		--set pipelineTools.image.registry="$$KFP_IMAGE_REGISTRY" \
 		--set pipelineTools.image.name="$$KFP_PIPELINE_TOOLS_IMAGE_NAME" \
 		--set pipelineTools.image.tag="$$KFP_PIPELINE_TOOLS_IMAGE_TAG" \
+		--set mlflowGatewayHost="$(GATEWAY_HOST)" \
 		-s templates/upload-assets-job.yaml | oc apply -n $$KFP_NAMESPACE -f -
 
 run-adhoc-query:

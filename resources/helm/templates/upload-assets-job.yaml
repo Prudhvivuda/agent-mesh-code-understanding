@@ -41,8 +41,12 @@ spec:
           env:
             - name: MLFLOW_TRACKING_INSECURE_TLS
               value: "true"
-            - name: MLFLOW_WORKSPACE
+            - name: MLFLOW_NAMESPACE
               value: "{{ .Values.namespace }}"
+            {{- if .Values.mlflowGatewayHost }}
+            - name: MLFLOW_TRACKING_URI
+              value: "https://{{ .Values.mlflowGatewayHost }}/mlflow"
+            {{- end }}
             - name: AGENTMESH_REPO_URL
               value: "{{ .Values.repoUrl }}"
             - name: AGENTMESH_REPO_REF

@@ -1,7 +1,6 @@
 import json
 import os
 import mlflow
-import requests
 from mlflow.tracking import MlflowClient
 import logging
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
@@ -12,9 +11,9 @@ from .asset_loader import AssetLoader
 class MlFlowAssetLoader(AssetLoader):
     """Loads an asset from the MLflow artifacts registry."""
 
-    STATIC_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_WORKSPACE', 'demo')}/code-refactoring/assets/static"
-    RESULT_DIRECTORY_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_WORKSPACE', 'demo')}/code-refactoring/assets/result-directories"
-    RESULT_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_WORKSPACE', 'demo')}/code-refactoring/assets/results"
+    STATIC_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_NAMESPACE', os.environ.get('KFP_NAMESPACE', 'demo'))}/code-refactoring/assets/static"
+    RESULT_DIRECTORY_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_NAMESPACE', os.environ.get('KFP_NAMESPACE', 'demo'))}/code-refactoring/assets/result-directories"
+    RESULT_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_NAMESPACE', os.environ.get('KFP_NAMESPACE', 'demo'))}/code-refactoring/assets/results"
     _RUN_NAME = "code-understanding"
 
     _SA_TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -28,22 +27,6 @@ class MlFlowAssetLoader(AssetLoader):
                 logging.info("Setting MLFLOW_TRACKING_TOKEN from Kubernetes service account token...")
 
                 os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
-
-        _token = os.environ.get("MLFLOW_TRACKING_TOKEN")
-        _workspace = os.environ.pop("MLFLOW_WORKSPACE", None)
-
-        if _token:
-
-            _orig_send = requests.Session.send
-
-            def _send_with_forwarded_token(self, request, **kwargs):
-                request.headers["X-Forwarded-Access-Token"] = _token
-                if _workspace:
-                    request.headers["X-MLFLOW-WORKSPACE"] = _workspace
-                return _orig_send(self, request, **kwargs)
-
-            requests.Session.send = _send_with_forwarded_token
-
 
     def _get_absolute_artifact_uri(self,
                                    asset_file_path: str,
