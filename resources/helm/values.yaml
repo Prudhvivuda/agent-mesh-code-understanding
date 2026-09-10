@@ -74,6 +74,12 @@ otel:
     bucket: tempo
     storageSize: 10Gi
 
+indexWorkspace:
+  maxBytes: "5368709120"
+  ephemeralStorage:
+    request: 10Gi
+    limit: 12Gi
+
 console:
   enabled: true
   replicas: 1
