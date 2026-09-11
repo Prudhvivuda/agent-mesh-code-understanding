@@ -28,6 +28,12 @@ class MlFlowAssetLoader(AssetLoader):
 
                 os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
 
+        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+
+        if tracking_uri:
+
+            mlflow.set_tracking_uri(tracking_uri)
+
     def _get_absolute_artifact_uri(self,
                                    asset_file_path: str,
                                    experiment_name: str,

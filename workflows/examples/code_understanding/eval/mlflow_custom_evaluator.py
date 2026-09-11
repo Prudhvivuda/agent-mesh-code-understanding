@@ -36,6 +36,12 @@ class MlFlowCustomEvaluator(CustomEvaluator):
 
                 os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
 
+        tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+
+        if tracking_uri:
+
+            mlflow.set_tracking_uri(tracking_uri)
+
     def _judge_model_uri(self) -> str:
         """Returns the MLflow judge model URI, using an OpenAI-compatible endpoint."""
         judge_id = os.getenv("JUDGE_LLM_ID")
