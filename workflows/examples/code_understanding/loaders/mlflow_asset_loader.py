@@ -16,17 +16,7 @@ class MlFlowAssetLoader(AssetLoader):
     RESULT_ASSET_EXPERIMENT = f"{os.environ.get('MLFLOW_NAMESPACE', os.environ.get('KFP_NAMESPACE', 'demo'))}/code-refactoring/assets/results"
     _RUN_NAME = "code-understanding"
 
-    _SA_TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-
     def __init__(self):
-
-        if not os.environ.get("MLFLOW_TRACKING_TOKEN") and os.path.exists(self._SA_TOKEN_PATH):
-
-            with open(self._SA_TOKEN_PATH) as f:
-
-                logging.info("Setting MLFLOW_TRACKING_TOKEN from Kubernetes service account token...")
-
-                os.environ["MLFLOW_TRACKING_TOKEN"] = f.read().strip()
 
         tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
 
