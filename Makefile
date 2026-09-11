@@ -122,7 +122,13 @@ apply-secrets:
 	fi || true && \
 	oc patch secret code-understanding-env -n $$KFP_NAMESPACE \
 		--type=merge \
-		-p "{\"stringData\":{\"MLFLOW_NAMESPACE\":\"$$KFP_NAMESPACE\"}}"
+		-p "{\"stringData\":{\"MLFLOW_NAMESPACE\":\"$$KFP_NAMESPACE\"}}" && \
+	if [ -n "$(GATEWAY_HOST)" ]; then \
+		echo "==> Patching MLFLOW_TRACKING_URI with external gateway URL..." && \
+		oc patch secret code-understanding-env -n $$KFP_NAMESPACE \
+			--type=merge \
+			-p "{\"stringData\":{\"MLFLOW_TRACKING_URI\":\"https://$(GATEWAY_HOST)/mlflow\"}}"; \
+	fi
 
 build-images:
 	@set -a && . $(ENV_FILE) && set +a && \
