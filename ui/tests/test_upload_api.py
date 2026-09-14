@@ -45,7 +45,7 @@ def upload_workspaces(monkeypatch, tmp_path):
         created.append(workspace)
         return workspace
 
-    monkeypatch.setattr(main.downloads, "create_download_workspace", create_workspace)
+    monkeypatch.setattr(main.index_storage, "create_index_workspace", create_workspace)
     return created
 
 
@@ -144,7 +144,7 @@ def test_upload_api_reports_mlflow_failure(monkeypatch, tmp_path, upload_workspa
 
 def test_upload_api_enforces_archive_size_limit(monkeypatch, tmp_path, upload_workspaces):
     configure_fake_mlflow(monkeypatch, UploadClient())
-    monkeypatch.setenv("INDEX_DOWNLOAD_MAX_BYTES", "1")
+    monkeypatch.setenv("INDEX_WORKSPACE_MAX_BYTES", "1")
 
     response = post_bundle(make_index_bundle(tmp_path / "index.tar.gz"))
 

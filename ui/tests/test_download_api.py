@@ -74,7 +74,7 @@ def workspaces(monkeypatch, tmp_path):
         created.append(workspace)
         return workspace
 
-    monkeypatch.setattr(main.downloads, "create_download_workspace", create_workspace)
+    monkeypatch.setattr(main.index_storage, "create_index_workspace", create_workspace)
     return created
 
 
@@ -94,7 +94,7 @@ def test_download_api_headers_and_cleanup(monkeypatch, workspaces):
 
 def test_download_api_returns_413_and_cleans_up(monkeypatch, workspaces):
     configure_fake_mlflow(monkeypatch, FakeClient(payload=b"0123456789"))
-    monkeypatch.setenv("INDEX_DOWNLOAD_MAX_BYTES", "5")
+    monkeypatch.setenv("INDEX_WORKSPACE_MAX_BYTES", "5")
     response = TestClient(main.app).get("/api/indexes/run-1/download")
 
     assert response.status_code == 413

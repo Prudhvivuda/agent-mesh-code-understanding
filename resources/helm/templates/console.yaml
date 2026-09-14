@@ -38,7 +38,7 @@ spec:
               value: "main"
             - name: PYTHONUNBUFFERED
               value: "1"
-            - name: INDEX_DOWNLOAD_MAX_BYTES
+            - name: INDEX_WORKSPACE_MAX_BYTES
               value: "{{ .Values.indexWorkspace.maxBytes }}"
           envFrom:
             - secretRef:
