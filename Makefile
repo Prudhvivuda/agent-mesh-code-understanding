@@ -233,17 +233,6 @@ run-pipelines:
 		--type=merge -p '{"stringData":{"GIT_REPO":"$(PIPELINE_GIT_REPO)"}}' || true && \
 	[ -n "$(PIPELINE_GIT_BRANCH)" ] && oc patch secret code-understanding-env -n $$KFP_NAMESPACE \
 		--type=merge -p '{"stringData":{"GIT_BRANCH":"$(PIPELINE_GIT_BRANCH)"}}' || true && \
-	REPO_LIST="$$GIT_REPO_LIST" && \
-	if [ -n "$$PIPELINE_GIT_REPO_LIST" ] && [ -f "$$PIPELINE_GIT_REPO_LIST" ]; then \
-		echo "==> PIPELINE_GIT_REPO_LIST is set, using instead of GIT_REPO_LIST"; \
-		REPO_LIST="$$PIPELINE_GIT_REPO_LIST"; \
-	fi && \
-	if [ -n "$$REPO_LIST" ] && [ -f "$$REPO_LIST" ]; then \
-		echo "$$REPO_LIST"; \
-		oc set data secret/code-understanding-env -n $$KFP_NAMESPACE \
-			--from-file=GIT_REPO_LIST_CONTENTS="$$REPO_LIST"; \
-		echo "$$REPO_LIST"; \
-	fi || true && \
 	echo "==> Submitting run-pipelines job..." && \
 	oc delete job run-pipelines -n $$KFP_NAMESPACE --ignore-not-found=true && \
 	helm template agent-mesh-for-sw resources/helm \
