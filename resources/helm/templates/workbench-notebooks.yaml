@@ -12,7 +12,9 @@ metadata:
     opendatahub.io/workbench-image-namespace: "redhat-ods-applications"
     openshift.io/description: ""
     openshift.io/display-name: {{ .Values.dataGeneration.notebook.name}}
-    opendatahub.io/mlflow-instance: {{ .Values.dataGeneration.notebook.name}}
+    {{- if .Values.dataGeneration.notebook.mlflowInstance }}
+    opendatahub.io/mlflow-instance: {{ .Values.dataGeneration.notebook.mlflowInstance }}
+    {{- end }}
   name: {{ .Values.dataGeneration.notebook.name}}
   namespace: {{ .Values.namespace}}
   labels:
@@ -141,7 +143,9 @@ metadata:
     opendatahub.io/workbench-image-namespace: "redhat-ods-applications"
     openshift.io/description: ""
     openshift.io/display-name: {{ .Values.graphrag.notebook.name}}
-    opendatahub.io/mlflow-instance: {{ .Values.graphrag.notebook.name}}
+    {{- if .Values.graphrag.notebook.mlflowInstance }}
+    opendatahub.io/mlflow-instance: {{ .Values.graphrag.notebook.mlflowInstance }}
+    {{- end }}
   name: {{ .Values.graphrag.notebook.name}}
   namespace: {{ .Values.namespace}}
   labels:
