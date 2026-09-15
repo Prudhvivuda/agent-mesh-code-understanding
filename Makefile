@@ -279,6 +279,9 @@ deploy-otel:
 	echo "==> Creating OTel namespace $$OTEL_NAMESPACE..." && \
 	oc create namespace $$OTEL_NAMESPACE --dry-run=client -o yaml | oc apply -f - && \
 	\
+	echo "==> Waiting for MinIO to be ready..." && \
+	oc wait deployment/minio -n $$KFP_NAMESPACE --for=condition=Available --timeout=120s && \
+	\
 	echo "==> Creating Tempo S3 bucket..." && \
 	oc delete job create-tempo-bucket -n $$OTEL_NAMESPACE --ignore-not-found=true && \
 	helm template agent-mesh-for-sw resources/helm \

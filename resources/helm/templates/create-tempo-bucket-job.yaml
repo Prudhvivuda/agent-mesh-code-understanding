@@ -15,7 +15,9 @@ spec:
             - sh
             - -c
             - |
-              mc alias set minio {{ .Values.minio.endpoint }} "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" && \
+              until mc alias set minio {{ .Values.minio.endpoint }} "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY"; do
+                echo "MinIO not ready, retrying in 5s..."; sleep 5;
+              done
               mc mb --ignore-existing minio/{{ .Values.otel.tempo.bucket }}
           env:
             - name: MC_CONFIG_DIR
