@@ -7,10 +7,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../
 def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
                             git_repo: str = "", git_branch: str = "", multi_repo: bool = False):
     """Generates a GraphRAG index from the provided codebase."""
-    import json, os, lancedb, shutil, traceback, subprocess, tracemalloc, nest_asyncio, logging
+    import json, os, lancedb, shutil, traceback, tracemalloc, nest_asyncio, logging
     from loaders.default_asset_loader import DefaultAssetLoader
     from pipelines.base.data_generation import generate_git_slug
     from utils.graphrag_utils import DependencyAnalyzer
+    from pipelines.graphrag import run_graphrag
+    from telemetry.default_custom_telemetry import DefaultCustomTelemetry
 
     tracemalloc.start()
 
@@ -25,8 +27,6 @@ def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
     try:
 
         logging.info("Starting process...")
-
-        graph_rag_config_path = f"{graphrag_source_path}/settings.yaml"
 
         os.makedirs(f"{graphrag_source_path}/input", exist_ok=True)
 
@@ -49,15 +49,9 @@ def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
 
         logging.info(f"Running index for git_slug={git_slug}, multi_repo={multi_repo}...")
 
-        graphrag_sh = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "graphrag.sh")
+        DefaultCustomTelemetry().track()
 
-        proc = subprocess.run(
-            ["bash", graphrag_sh, graphrag_source_path, graph_rag_config_path],
-            check=False,
-        )
-
-        if proc.returncode != 0:
-            raise Exception(f"GraphRAG indexing failed (exit {proc.returncode})")
+        run_graphrag(graphrag_source_path)
 
         artifact_path = DefaultAssetLoader.get_log_results_artifact_path(
 

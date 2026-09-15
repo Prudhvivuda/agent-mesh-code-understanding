@@ -512,9 +512,12 @@ class DataGenerationPipeline:
             multi_repo: bool = False):
         """Prepares the environment, generates code metadata for all detected languages, and returns a status dict."""
         import traceback, logging
+        from telemetry.default_custom_telemetry import DefaultCustomTelemetry
         import os
 
         logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
+
+        DefaultCustomTelemetry().track()
 
         git_slug = generate_git_slug(git_repo, git_branch)
 

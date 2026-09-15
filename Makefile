@@ -7,6 +7,7 @@ GATEWAY_HOST        	:= $(shell oc get gateway data-science-gateway -n openshift
 PIPELINE_GIT_REPO   	?=
 PIPELINE_GIT_BRANCH 	?=
 PIPELINE_GIT_REPO_LIST	?=
+OTEL_SERVICE_NAME           	:= $(shell sed -n 's/^OTEL_SERVICE_NAME=//p' $(ENV_FILE) 2>/dev/null)
 
 install:
 	@set -a && . $(ENV_FILE) && set +a && \
@@ -44,6 +45,7 @@ install:
 		--set clusterDomain="$(CLUSTER_DOMAIN)" \
 		--set mlflowGatewayHost="$(GATEWAY_HOST)"
 	$(MAKE) apply-secrets
+	$(MAKE) deploy-otel
 	@set -a && . $(ENV_FILE) && set +a && \
 	if [ "$$ASSET_LOADER" = "mlflow" ]; then \
 		echo "==> Preloading MLflow assets..." && \
@@ -253,3 +255,38 @@ run-pipelines:
 	\
 	echo "==> Streaming pipeline run results..." && \
 	oc logs -f job/run-pipelines -n $$KFP_NAMESPACE
+
+deploy-otel:
+	@set -a && . $(ENV_FILE) && set +a && \
+	\
+	[ -n "$(OTEL_SERVICE_NAME)" ] || { echo "Error: OTEL_SERVICE_NAME is not set in $(ENV_FILE)."; exit 1; } && \
+	\
+	echo "==> Checking for OpenTelemetry and Tempo CRDs..." && \
+	if ! oc get crd opentelemetrycollectors.opentelemetry.io >/dev/null 2>&1 || \
+	   ! oc get crd tempostacks.tempo.grafana.com >/dev/null 2>&1; then \
+		echo "Skipping deploy-otel: OpenTelemetry and/or Tempo operators are not installed."; \
+		exit 0; \
+	fi && \
+	\
+	if oc get tempostack $(OTEL_SERVICE_NAME) -n $$KFP_NAMESPACE >/dev/null 2>&1; then \
+		echo "==> OTel infrastructure already deployed, skipping."; \
+		exit 0; \
+	fi && \
+	\
+	echo "==> Creating Tempo S3 bucket..." && \
+	oc delete job create-tempo-bucket -n $$KFP_NAMESPACE --ignore-not-found=true && \
+	helm template agent-mesh-for-sw resources/helm \
+		--set namespace=$$KFP_NAMESPACE \
+		--set otel.createBucket=true \
+		-s templates/create-tempo-bucket-job.yaml | oc apply -n $$KFP_NAMESPACE -f - && \
+	oc wait job/create-tempo-bucket -n $$KFP_NAMESPACE --for=condition=complete --timeout=120s && \
+	oc delete job create-tempo-bucket -n $$KFP_NAMESPACE --ignore-not-found=true && \
+	\
+	echo "==> Deploying TempoStack and OpenTelemetry Collector..." && \
+	helm template agent-mesh-for-sw resources/helm \
+		--set namespace=$$KFP_NAMESPACE \
+		--set minio.rootUser=$$AWS_ACCESS_KEY_ID \
+		--set minio.rootPassword=$$AWS_SECRET_ACCESS_KEY \
+		--set otel.enabled=true \
+		--set otel.name=$(OTEL_SERVICE_NAME) \
+		-s templates/opentelemetry.yaml | oc apply -f -

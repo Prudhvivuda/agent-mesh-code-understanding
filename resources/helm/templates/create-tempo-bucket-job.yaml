@@ -1,0 +1,23 @@
+{{- if .Values.otel.createBucket }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-tempo-bucket
+  namespace: {{ .Values.namespace }}
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: minio/mc:latest
+          command:
+            - sh
+            - -c
+            - |
+              mc alias set minio http://minio:9000 "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" && \
+              mc mb --ignore-existing minio/{{ .Values.otel.tempo.bucket }}
+          envFrom:
+            - secretRef:
+                name: code-understanding-env
+{{- end }}

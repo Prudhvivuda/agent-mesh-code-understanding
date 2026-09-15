@@ -16,9 +16,12 @@ class AnalysisPipeline:
         from loaders.default_asset_loader import DefaultAssetLoader
         from utils.graphrag_utils import DependencyAnalyzer
         from pipelines.base.data_generation import generate_git_slug
+        from telemetry.default_custom_telemetry import DefaultCustomTelemetry
         import os
 
         logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
+
+        DefaultCustomTelemetry().track()
 
         git_slug = generate_git_slug(git_repo, git_branch) if git_repo else None
 
@@ -86,9 +89,12 @@ class AnalysisPipeline:
         from loaders.default_asset_loader import DefaultAssetLoader
         from utils.graphrag_utils import DependencyAnalyzer
         from pipelines.base.data_generation import generate_git_slug
+        from telemetry.default_custom_telemetry import DefaultCustomTelemetry
         import os
 
         logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
+
+        DefaultCustomTelemetry().track()
 
         use_multi_repo = multi_repo or not git_repo
 

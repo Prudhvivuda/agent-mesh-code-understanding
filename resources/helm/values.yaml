@@ -66,3 +66,9 @@ runPipelines:
   args: "--single"
   targetPath: "target"
   graphragSourcePath: "graph_rag_app/source"
+
+otel:
+  createBucket: false
+  tempo:
+    bucket: tempo
+    storageSize: 10Gi

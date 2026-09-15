@@ -32,8 +32,6 @@ class MlFlowCustomEvaluator(CustomEvaluator):
 
             mlflow.set_tracking_uri(tracking_uri)
 
-        mlflow.litellm.autolog()
-
     def _judge_model_uri(self) -> str:
         """Returns the MLflow judge model URI, using an OpenAI-compatible endpoint."""
         judge_id = os.getenv("JUDGE_LLM_ID")
