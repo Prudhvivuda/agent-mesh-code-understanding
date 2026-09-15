@@ -24,8 +24,6 @@ spec:
       name: tempo-s3-secret
       type: s3
   storageSize: {{ .Values.otel.tempo.storageSize }}
-  tenants:
-    mode: openshift
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -33,7 +31,7 @@ metadata:
   name: {{ .Values.otel.name }}
   namespace: {{ .Values.otel.namespace }}
 spec:
-  mode: Deployment
+  mode: deployment
   config:
     receivers:
       otlp:
