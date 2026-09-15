@@ -10,8 +10,12 @@ PIPELINE_GIT_REPO_LIST	?=
 install:
 	@set -a && . $(ENV_FILE) && set +a && \
 	\
-	echo "==> Creating namespace $$KFP_NAMESPACE..." && \
-	sed "s|{{ .Values.namespace }}|$$KFP_NAMESPACE|g; s|{{ .Values.requester }}|$$(oc whoami)|g" resources/helm/templates/namespace.yaml | oc apply -f - && \
+	echo "==> Creating namespaces..." && \
+	helm template agent-mesh-for-sw resources/helm \
+		--set namespace="$$KFP_NAMESPACE" \
+		--set requester="$$(oc whoami)" \
+		--set otel.namespace="$$OTEL_NAMESPACE" \
+		-s templates/namespace.yaml | oc apply -f - && \
 	\
 	echo "==> Waiting for OpenShift to inject service CA into odh-trusted-ca-bundle..." && \
 	until oc get configmap odh-trusted-ca-bundle -n $$KFP_NAMESPACE \
