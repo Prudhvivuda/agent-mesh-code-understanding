@@ -11,5 +11,5 @@ class MlFlowCustomTelemetry(CustomTelemetry):
         tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
         if tracking_uri:
             mlflow.set_tracking_uri(tracking_uri)
-            litellm.callbacks = ["mlflow"]
+        litellm.callbacks = ["mlflow"]
 
