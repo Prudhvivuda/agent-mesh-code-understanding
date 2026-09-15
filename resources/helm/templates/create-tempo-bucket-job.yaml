@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: create-tempo-bucket
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.otel.namespace }}
 spec:
   template:
     spec:
@@ -15,9 +15,11 @@ spec:
             - sh
             - -c
             - |
-              mc alias set minio http://minio:9000 "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" && \
+              mc alias set minio {{ .Values.minio.endpoint }} "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" && \
               mc mb --ignore-existing minio/{{ .Values.otel.tempo.bucket }}
-          envFrom:
-            - secretRef:
-                name: code-understanding-env
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.minio.rootUser | quote }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.minio.rootPassword | quote }}
 {{- end }}
