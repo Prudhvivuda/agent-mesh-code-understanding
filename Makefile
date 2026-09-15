@@ -284,7 +284,7 @@ deploy-otel:
 	helm template agent-mesh-for-sw resources/helm \
 		--set otel.namespace=$$OTEL_NAMESPACE \
 		--set otel.createBucket=true \
-		--set minio.endpoint=http://minio.$$KFP_NAMESPACE.svc.cluster.local:9000 \
+		--set minio.endpoint=http://minio-service.$$KFP_NAMESPACE.svc.cluster.local:9000 \
 		--set minio.rootUser=$$AWS_ACCESS_KEY_ID \
 		--set minio.rootPassword=$$AWS_SECRET_ACCESS_KEY \
 		-s templates/create-tempo-bucket-job.yaml | oc apply -f - && \
@@ -294,7 +294,7 @@ deploy-otel:
 	echo "==> Deploying TempoStack and OpenTelemetry Collector..." && \
 	helm template agent-mesh-for-sw resources/helm \
 		--set otel.namespace=$$OTEL_NAMESPACE \
-		--set minio.endpoint=http://minio.$$KFP_NAMESPACE.svc.cluster.local:9000 \
+		--set minio.endpoint=http://minio-service.$$KFP_NAMESPACE.svc.cluster.local:9000 \
 		--set minio.rootUser=$$AWS_ACCESS_KEY_ID \
 		--set minio.rootPassword=$$AWS_SECRET_ACCESS_KEY \
 		--set otel.enabled=true \
