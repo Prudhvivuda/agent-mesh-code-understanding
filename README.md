@@ -10,6 +10,8 @@ Contents
   - [Preparing the Environment](#preparing-the-environment)
   - [(Optional) Building the Container Images](#optional-building-the-container-images)
   - [Installing via Makefile](#installing-via-makefile)
+- [Code Understanding Console](#code-understanding-console)
+- [OpenShift Console Plugin](#openshift-console-plugin)
 - [Running the Code Understanding Workflow](#running-the-code-understanding-workflow)
 - [Running Adhoc Queries](#running-adhoc-queries)
 - [Integrating with other tools](#integrating-with-other-tools)
@@ -120,6 +122,53 @@ nohup python3 -m vllm.entrypoints.openai.api_server \
 ### Installing via Makefile
 1. Run the Makefile: `make install`
 
+## Code Understanding Console
+
+Deploy the FastAPI console as a Kubernetes workload in your namespace. This is the same UI and API as the OpenShift console plugin, for users who cannot install a cluster-wide ConsolePlugin.
+
+```
+make deploy-console
+# https://code-understanding-console-<namespace>.apps.<cluster-domain>
+```
+
+`make deploy-console` builds a container image on-cluster, then applies a Deployment, Service, and Route. Namespace admin is enough; cluster-admin is not required.
+
+Run locally (requires `.env` and cluster credentials for pipeline/chat features):
+
+```
+make run-console
+# or: ./wrappers/console.sh
+# http://127.0.0.1:8080
+```
+
+Or port-forward the cluster deployment:
+
+```
+make port-forward-console
+# http://localhost:8080
+```
+
+The console is also deployed at the end of `make install`.
+
+## OpenShift Console Plugin
+
+The Code Understanding UI is an OpenShift web-console dynamic plugin backed by a FastAPI service (repository catalog, indexes, pipeline jobs, and chat).
+
+Build and deploy the plugin plus API:
+
+```
+make deploy-console-plugin
+```
+
+Then open:
+
+- **Application launcher** (grid menu, top right) → **Code Understanding**
+- Direct URL: `https://<openshift-console-host>/code-understanding`
+
+Navigation also appears under **Administrator** → **Home** → **Code Understanding**. Enabling the plugin is cluster-wide via `consoles.operator.openshift.io/cluster`; re-run `make enable-console-plugin` if needed.
+
+Built for OpenShift **4.21** (`@console/pluginAPI: ^4.21.0`). The plugin nginx serves HTTPS on port 9443 and the FastAPI backend serves HTTPS on port 8443, both with OpenShift serving certificates.
+
 ## Running the Code Understanding Workflow
 1. To run the **Code Understanding** pipeline for a single repository, run:
 ```make run-pipelines ARGS="--single-repo"```
@@ -186,7 +235,6 @@ representation of the codebase that can be used for querying.
 The **Data Analysis** sub-workflow is used to query the generated GraphRAG index using the GraphRAG SDK.
 It includes both canned and adhoc queries that can be used to explore the 
 code and generate assets for the refactoring catalog, including a migration plan.
-
 
 
 
