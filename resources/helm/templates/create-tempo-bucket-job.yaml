@@ -18,6 +18,8 @@ spec:
               mc alias set minio {{ .Values.minio.endpoint }} "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" && \
               mc mb --ignore-existing minio/{{ .Values.otel.tempo.bucket }}
           env:
+            - name: MC_CONFIG_DIR
+              value: /tmp
             - name: AWS_ACCESS_KEY_ID
               value: {{ .Values.minio.rootUser | quote }}
             - name: AWS_SECRET_ACCESS_KEY
