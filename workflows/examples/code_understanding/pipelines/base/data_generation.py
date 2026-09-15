@@ -517,6 +517,8 @@ class DataGenerationPipeline:
 
         logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
+        logging.info("Tracking pipeline start...")
+
         DefaultCustomTelemetry().track()
 
         git_slug = generate_git_slug(git_repo, git_branch)
