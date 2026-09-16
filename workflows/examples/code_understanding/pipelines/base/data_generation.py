@@ -2,6 +2,8 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
 
+from utils.otel_utils import enable_telemetry
+
 
 def clone_from_repo(repo_url, destination_path, branch="master"):
     """Clones the given git repo to the specified destination."""
@@ -391,6 +393,7 @@ def save_code_and_metadata_files(df, target_path, git_repo: str, git_slug: str, 
         raise e
 
 
+@enable_telemetry
 def generate_code_and_meta(git_repo: str, git_branch: str, language: str,
                             source_path: str, target_path: str, config: bool = False,
                             multi_repo: bool = False, external_metadata: dict = None):
@@ -508,18 +511,14 @@ def detect_languages(source_path: str) -> list:
 
 class DataGenerationPipeline:
 
+    @enable_telemetry
     def run(self, git_repo: str, git_branch: str, source_path: str, target_path: str,
             multi_repo: bool = False):
         """Prepares the environment, generates code metadata for all detected languages, and returns a status dict."""
         import traceback, logging
-        from telemetry.default_custom_telemetry import DefaultCustomTelemetry
         import os
 
         logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
-
-        logging.info("Tracking pipeline start...")
-
-        DefaultCustomTelemetry().track()
 
         git_slug = generate_git_slug(git_repo, git_branch)
 

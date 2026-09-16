@@ -10,16 +10,49 @@ logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 class MlFlowCustomTelemetry(CustomTelemetry):
     """MLflow telemetry provider. Enables LiteLLM autologging for token counts and latency."""
 
+    _DEFAULT_EXPERIMENT_NAME = None
+
+    def _get_default_experiment_name(self) -> str:
+        """
+        Dynamically discovers the system's default experiment.
+        """
+        temp_run_id = None
+        resolved_id = None
+
+        try:
+            with mlflow.start_run() as run:
+                temp_run_id = run.info.run_id
+                resolved_id = run.info.experiment_id
+
+            experiment = mlflow.get_experiment(experiment_id=resolved_id)
+            return experiment.name if experiment else "Default"
+
+        finally:
+            if temp_run_id:
+                try:
+                    mlflow.MlflowClient().delete_run(temp_run_id)
+                except Exception:
+                    pass
+
+    def __init__(self):
+        if not MlFlowCustomTelemetry._DEFAULT_EXPERIMENT_NAME:
+            MlFlowCustomTelemetry._DEFAULT_EXPERIMENT_NAME = self._get_default_experiment_name()
+
     def track(self):
         tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
-        logging.info(f"MlFlowCustomTelemetry.track() called. MLFLOW_TRACKING_URI={tracking_uri}")
+
+        logging.debug(f"MlFlowCustomTelemetry.track() called. MLFLOW_TRACKING_URI={tracking_uri}")
+
         if tracking_uri:
             mlflow.set_tracking_uri(tracking_uri)
+
+        mlflow.set_experiment(self._DEFAULT_EXPERIMENT_NAME)
+
         try:
             mlflow.openai.autolog()
-            logging.info("mlflow.openai.autolog() registered successfully")
+            logging.info("Mlflow tracking registered successfully")
         except Exception as e:
             logging.error(f"mlflow.openai.autolog() failed: {e}")
+
         litellm.callbacks = ["mlflow"]
-        logging.info("litellm.callbacks set to ['mlflow']")
 

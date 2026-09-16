@@ -3,7 +3,10 @@ import json
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.."))
 
+from utils.otel_utils import enable_telemetry
 
+
+@enable_telemetry
 def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
                             git_repo: str = "", git_branch: str = "", multi_repo: bool = False):
     """Generates a GraphRAG index from the provided codebase."""
@@ -12,7 +15,6 @@ def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
     from pipelines.base.data_generation import generate_git_slug
     from utils.graphrag_utils import DependencyAnalyzer
     from pipelines.graphrag import run_graphrag
-    from telemetry.default_custom_telemetry import DefaultCustomTelemetry
 
     tracemalloc.start()
 
@@ -48,8 +50,6 @@ def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
         shutil.copytree(codebase_path, f"{graphrag_source_path}/input", dirs_exist_ok=True)
 
         logging.info(f"Running index for git_slug={git_slug}, multi_repo={multi_repo}...")
-
-        DefaultCustomTelemetry().track()
 
         run_graphrag(graphrag_source_path)
 
@@ -107,6 +107,7 @@ def generate_graphrag_index(codebase_path: str, graphrag_source_path: str,
         )
 
 
+@enable_telemetry
 def evaluate_graphrag_index(graphrag_source_path: str, git_repo: str, git_branch: str,
                             multi_repo: bool = False):
     """Evaluates a GraphRAG index using DefaultCustomEvaluator.evaluate_with_dataset."""
