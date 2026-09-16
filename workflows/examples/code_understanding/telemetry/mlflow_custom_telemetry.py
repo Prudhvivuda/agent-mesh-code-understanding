@@ -25,7 +25,7 @@ class MlFlowCustomTelemetry(CustomTelemetry):
                 resolved_id = run.info.experiment_id
 
             experiment = mlflow.get_experiment(experiment_id=resolved_id)
-            return experiment.name if experiment else "Default"
+            return experiment.name if experiment else None
 
         finally:
             if temp_run_id:
@@ -37,6 +37,9 @@ class MlFlowCustomTelemetry(CustomTelemetry):
     def __init__(self):
         if not MlFlowCustomTelemetry._DEFAULT_EXPERIMENT_NAME:
             MlFlowCustomTelemetry._DEFAULT_EXPERIMENT_NAME = self._get_default_experiment_name()
+
+        logging.info(
+            f"MlFlowCustomTelemetry: default experiment resolved to '{self._DEFAULT_EXPERIMENT_NAME}'")
 
     def track(self):
         tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
