@@ -7,30 +7,12 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 import re
-import shutil
 import tarfile
-import tempfile
 from typing import Any
-
-
-DEFAULT_MAX_DOWNLOAD_BYTES = 5 * 1024**3
-MAX_DOWNLOAD_BYTES_ENV_NAME = "INDEX_DOWNLOAD_MAX_BYTES"
 
 
 class DownloadTooLargeError(ValueError):
     """Raised when an index bundle exceeds the configured download limit."""
-
-
-def configured_max_download_bytes() -> int:
-    """Return the configured maximum bundle size, defaulting to 5 GiB."""
-    raw_value = os.getenv(MAX_DOWNLOAD_BYTES_ENV_NAME, "").strip()
-    if not raw_value:
-        return DEFAULT_MAX_DOWNLOAD_BYTES
-    try:
-        value = int(raw_value)
-    except ValueError:
-        return DEFAULT_MAX_DOWNLOAD_BYTES
-    return value if value > 0 else DEFAULT_MAX_DOWNLOAD_BYTES
 
 
 def _safe_filename_component(value: str, fallback: str) -> str:
@@ -44,16 +26,6 @@ def index_archive_filename(metadata: dict[str, Any]) -> str:
     prefix = _safe_filename_component(str(prefix or "index"), "index")
     run_id = _safe_filename_component(str(metadata.get("run_id") or "run"), "run")
     return f"{prefix}-{run_id}.tar.gz"
-
-
-def create_download_workspace() -> Path:
-    """Create the temporary workspace used for one download request."""
-    return Path(tempfile.mkdtemp(prefix="code-understanding-index-"))
-
-
-def cleanup_download_workspace(path: str | Path) -> None:
-    """Remove a completed or failed download workspace."""
-    shutil.rmtree(path, ignore_errors=True)
 
 
 def _directory_size(directory: Path, limit: int | None = None) -> int:
@@ -116,8 +88,6 @@ def _download_index_directory(
 
 def _write_manifest(path: Path, metadata: dict[str, Any]) -> None:
     manifest = {
-        "format": "agent-mesh-code-understanding-index",
-        "version": 1,
         "run_id": metadata["run_id"],
         "git_slug": metadata["git_slug"],
         "multi_repo": bool(metadata["multi_repo"]),

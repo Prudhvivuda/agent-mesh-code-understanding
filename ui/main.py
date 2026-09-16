@@ -6,20 +6,24 @@ import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.body_limit import RequestBodyLimitMiddleware
 from starlette.requests import Request
 
 import catalog
 import cluster
 import downloads
+import index_storage
 import indexes
+import uploads
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+MULTIPART_OVERHEAD_BYTES = 64 * 1024
 
 
 class FrameAncestorsMiddleware(BaseHTTPMiddleware):
@@ -37,6 +41,10 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+)
+app.add_middleware(
+    RequestBodyLimitMiddleware,
+    max_body_size=index_storage.configured_max_index_bytes() + MULTIPART_OVERHEAD_BYTES,
 )
 
 
@@ -109,16 +117,16 @@ def download_index(run_id: str) -> FileResponse:
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Unable to validate MLflow index run: {exc}") from exc
 
-    workspace = downloads.create_download_workspace()
+    workspace = index_storage.create_index_workspace()
     try:
         archive_path, filename = downloads.create_index_archive(
             client,
             metadata,
             workspace,
-            downloads.configured_max_download_bytes(),
+            index_storage.configured_max_index_bytes(),
         )
     except Exception as exc:
-        downloads.cleanup_download_workspace(workspace)
+        index_storage.cleanup_index_workspace(workspace)
         if isinstance(exc, downloads.DownloadTooLargeError):
             raise HTTPException(status_code=413, detail=str(exc)) from exc
         if isinstance(exc, FileNotFoundError):
@@ -129,8 +137,58 @@ def download_index(run_id: str) -> FileResponse:
         path=archive_path,
         media_type="application/gzip",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-        background=BackgroundTask(downloads.cleanup_download_workspace, workspace),
+        background=BackgroundTask(index_storage.cleanup_index_workspace, workspace),
     )
+
+
+@app.post("/api/indexes/upload")
+def upload_index(
+    file: UploadFile = File(...),
+) -> dict[str, Any]:
+    """Validate one portable tar.gz bundle and log it as a fresh MLflow index run."""
+    workspace: Path | None = None
+    try:
+        if os.getenv("ASSET_LOADER", "local").strip().lower() != "mlflow":
+            raise HTTPException(
+                status_code=503,
+                detail="Index uploads require ASSET_LOADER=mlflow in code-understanding-env.",
+            )
+        if not (file.filename or "").lower().endswith(".tar.gz"):
+            raise HTTPException(status_code=400, detail="Upload one .tar.gz index bundle.")
+
+        max_bytes = index_storage.configured_max_index_bytes()
+        if file.size is not None and file.size > max_bytes:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Uploaded archive exceeds the maximum size of {max_bytes} bytes.",
+            )
+
+        try:
+            client = indexes.create_mlflow_client()
+        except Exception as exc:
+            raise HTTPException(status_code=503, detail=f"MLflow is unavailable: {exc}") from exc
+
+        workspace = index_storage.create_index_workspace()
+        metadata = uploads.extract_uploaded_index(
+            file.file,
+            workspace / "artifact",
+            max_bytes,
+        )
+        return indexes.log_uploaded_index(client, metadata, workspace / "artifact")
+    except uploads.IndexArchiveTooLargeError as exc:
+        raise HTTPException(status_code=413, detail=str(exc)) from exc
+    except uploads.IndexArchiveError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except indexes.MlflowUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except indexes.MlflowUploadError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    finally:
+        try:
+            file.file.close()
+        finally:
+            if workspace is not None:
+                index_storage.cleanup_index_workspace(workspace)
 
 
 @app.get("/api/jobs")
