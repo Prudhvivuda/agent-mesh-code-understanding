@@ -13,26 +13,8 @@ class MlFlowCustomTelemetry(CustomTelemetry):
     _DEFAULT_EXPERIMENT_NAME = None
 
     def _get_default_experiment_name(self) -> str:
-        """
-        Dynamically discovers the system's default experiment.
-        """
-        temp_run_id = None
-        resolved_id = None
-
-        try:
-            with mlflow.start_run() as run:
-                temp_run_id = run.info.run_id
-                resolved_id = run.info.experiment_id
-
-            experiment = mlflow.get_experiment(experiment_id=resolved_id)
-            return experiment.name if experiment else None
-
-        finally:
-            if temp_run_id:
-                try:
-                    mlflow.MlflowClient().delete_run(temp_run_id)
-                except Exception:
-                    pass
+        """Returns the experiment name from the MLFLOW_EXPERIMENT_NAME env var."""
+        return os.environ.get("MLFLOW_EXPERIMENT_NAME", "AIP-default")
 
     def __init__(self):
         if not MlFlowCustomTelemetry._DEFAULT_EXPERIMENT_NAME:
