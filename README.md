@@ -81,12 +81,10 @@ Ensure that you have access to OpenAI-compatible endpoints for the following mod
 1. To run the **Code Understanding** pipeline for a single repository, run:
 ```make run-pipelines ARGS="--single-repo"```
 
-   To specify the target repository or branch:
+   To override the default repository or branch:
     - Update `GIT_REPO` and `GIT_BRANCH` in `.env` to the desired repository and branch.
-    - Run the following command to update the environment variables: 
-   ```make apply-secrets```
     - Run the following command: 
-   ```make run-pipelines ARGS="--single-repo"```
+   ```make apply-secrets; make run-pipelines ARGS="--single-repo"```
 
    Or without modifying `.env`:
    ```make run-pipelines ARGS="--single-repo" PIPELINE_GIT_REPO=https://github.com/org/repo PIPELINE_GIT_BRANCH=main```
