@@ -78,8 +78,8 @@ following models:
 ### Installing via Makefile
 1. Run the Makefile: `make install`
 
-   (**NOTE**: To deploy the local `e5-mistral` embedding model as part of 
-   installation, run: `make install DEPLOY_EMBEDDING_MODEL=true`)
+   (**NOTE**: To deploy the `e5-mistral` embedding model as part of 
+   the installation, run: `make install DEPLOY_EMBEDDING_MODEL=true`)
 
 ## Running the Code Understanding Workflow
 1. To run the **Code Understanding** pipeline for a single repository, run:
