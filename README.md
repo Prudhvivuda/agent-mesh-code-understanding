@@ -59,8 +59,8 @@ Ensure that you have access to OpenAI-compatible endpoints for the following mod
 |---|-------|------|-----------|---------------|
 | 1 | gpt-oss-120b | GraphRAG "chat" model | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">Link</a> |
 | 2 | e5-mistral-7b-instruct | GraphRAG "embedding" model | [Deploying e5-mistral-7b-instruct](resources/models/deploying-e5-mistral-7b-instruct.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">Link</a> |
-| 3 | Gemma-4-31B-it (Option A) | Coding agent (for invoking skills) | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | — |
-| 4 | gpt-oss-120b (Option B) | Coding agent (for invoking skills) | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | — |
+| 3 | (Option A) Gemma-4-31B-it | Coding agent (for invoking skills) | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | — |
+| 4 | (Option B) gpt-oss-120b | Coding agent (for invoking skills) | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | — |
 
 ### Preparing the Environment
 
