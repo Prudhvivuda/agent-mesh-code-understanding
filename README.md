@@ -55,12 +55,12 @@ Understanding** and **Code Migration**. This repository demonstrates the **Code 
 ### Integrating the Models
 Ensure that you have access to OpenAI-compatible endpoints for the following models:
 
-| # | Role | Model | Additional Instructions | Links |
-|---|------|-------|------------------------|-------|
+| # | Role | Model | Additional Instructions | Links                                                                                        |
+|---|------|-------|------------------------|----------------------------------------------------------------------------------------------|
 | 1 | GraphRAG "chat" model | gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a> |
 | 2 | GraphRAG "embedding" model | e5-mistral-7b-instruct | [Deploying e5-mistral-7b-instruct](resources/models/deploying-e5-mistral-7b-instruct.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a> |
-| 3 | Coding agent (for invoking skills) | (Option A) Gemma-4-31B-it | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | — |
-| 4 | Coding agent (for invoking skills) | (Option B) gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | — |
+| 3 | Coding agent (for invoking skills) | (Option A) Gemma-4-31B-it | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | N/A |
+| 4 | Coding agent (for invoking skills) | (Option B) gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | N/A |
 
 ### Preparing the Environment
 
@@ -188,4 +188,5 @@ Then launch:
 
 Navigation also appears under **Administrator** → **Home** → **Code Understanding**. 
 
-The plugin is enabled cluster-wide through `consoles.operator.openshift.io/cluster`. If it does not appear, re-run `make enable-console-plugin`.
+The plugin is enabled cluster-wide through `consoles.operator.openshift.io/cluster`. If it does not appear at first, run `make 
+enable-console-plugin`.
