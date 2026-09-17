@@ -62,7 +62,7 @@ Ensure that you have access to OpenAI-compatible endpoints for the following mod
 | 3 | **Coding agent | **(Option A)** Gemma-4-31B-it | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | N/A |
 | 4 | **Coding agent | **(Option B)** gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | N/A |
 
-<font size=8px>**Optional: Used for "Integrating with other tools" (below)</font>
+<sub>**Optional: Used for "Integrating with other tools" (below)</sub>
 
 ### Preparing the Environment
 
