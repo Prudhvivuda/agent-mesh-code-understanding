@@ -77,13 +77,9 @@ following models:
 
 ### Installing via Makefile
 1. Run the Makefile: `make install`
-2. To deploy the local `e5-mistral` embedding model as part of installation, run:
-   `make install DEPLOY_EMBEDDING_MODEL=true`
 
-   When enabled, missing embedding settings are defaulted to the in-cluster
-   `e5-mistral` service and stored in `code-understanding-env`. Explicit
-   `EMBED_LLM_*` values in `.env` are preserved. The model can also be
-   deployed independently with `make deploy-embedding-model`.
+   (**NOTE**: To deploy the local `e5-mistral` embedding model as part of 
+   installation, run: `make install DEPLOY_EMBEDDING_MODEL=true`)
 
 ## Running the Code Understanding Workflow
 1. To run the **Code Understanding** pipeline for a single repository, run:

@@ -11,3 +11,9 @@ nohup python -m vllm.entrypoints.openai.api_server \
     --dtype float16 \
     > vllm.log 2>&1 &
 ```
+
+
+#################################
+# Other
+#################################
+To deploy the embedding model as a standalone job, run `make deploy-embedding-model`.
