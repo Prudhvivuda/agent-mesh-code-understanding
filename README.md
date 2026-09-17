@@ -57,10 +57,10 @@ Ensure that you have access to OpenAI-compatible endpoints for the following mod
 
 | # | Role | Model | Additional Instructions | Links |
 |---|------|-------|------------------------|-------|
-| <small>1</small> | <small>GraphRAG "chat" model</small> | <small>gpt-oss-120b</small> | <small>[Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md)</small> | <small><a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a></small> |
-| <small>2</small> | <small>GraphRAG "embedding" model</small> | <small>e5-mistral-7b-instruct</small> | <small>[Deploying e5-mistral-7b-instruct](resources/models/deploying-e5-mistral-7b-instruct.md)</small> | <small><a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a></small> |
-| <small>3</small> | <small>Coding agent**</small> | <small>**(Option A)** Gemma-4-31B-it</small> | <small>[Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md)</small> | <small>N/A</small> |
-| <small>4</small> | <small>Coding agent**</small> | <small>**(Option B)** gpt-oss-120b</small> | <small>[Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md)</small> | <small>N/A</small> |
+| 1 | GraphRAG "chat" model | gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a> |
+| 2 | GraphRAG "embedding" model | e5-mistral-7b-instruct | [Deploying e5-mistral-7b-instruct](resources/models/deploying-e5-mistral-7b-instruct.md) | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">GraphRAG Docs</a> |
+| 3 | Coding agent** | **(Option A)** Gemma-4-31B-it | [Deploying Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md) | N/A |
+| 4 | Coding agent** | **(Option B)** gpt-oss-120b | [Deploying gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) | N/A |
 
 <sub>**Optional: Used for "Integrating with other tools" (below)</sub>
 
