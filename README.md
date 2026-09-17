@@ -53,20 +53,13 @@ Understanding** and **Code Migration**. This repository demonstrates the **Code 
 ## Installing the Code Understanding Workflow
 
 ### Integrating the Models
-Ensure that you have access to OpenAI-compatible endpoints for the 
-following models:
+Ensure that you have access to OpenAI-compatible endpoints for the following models:
 
-1. GraphRAG "chat" model 
-(see <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">docs</a>). Candidate models: 
-- gpt-oss-120b (see: [deploying-gpt-oss-120b.md](resources/models/deploying-gpt-oss-120b.md))
-
-2. GraphRAG "embedding" model 
-(see <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">docs</a>). Candidate models:
-- e5-mistral-7b-instruct (see: [deploying-e5-mistral-7b-instruct.md](resources/models/deploying-e5-mistral-7b-instruct.md))
-   
-3. Coding agent model (for invoking skills). Candidate models:
-- Gemma-4-31B-it (see: [deploying-gemma-4-31b.md](resources/models/deploying-gemma-4-31b.md))
-- gpt-oss-120b (see: [deploying-gpt-oss-120b.md](resources/models/deploying-gpt-oss-120b.md))
+| # | Role | Documentation | Additional Instructions |
+|---|------|---------------|------------------------|
+| 1 | GraphRAG "chat" model | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">docs</a> | [gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) |
+| 2 | GraphRAG "embedding" model | <a href="https://microsoft.github.io/graphrag/config/yaml" target="_blank">docs</a> | [e5-mistral-7b-instruct](resources/models/deploying-e5-mistral-7b-instruct.md) |
+| 3 | Coding agent (for invoking skills) | — | [Gemma-4-31B-it](resources/models/deploying-gemma-4-31b.md), [gpt-oss-120b](resources/models/deploying-gpt-oss-120b.md) |
 
 ### Preparing the Environment
 
