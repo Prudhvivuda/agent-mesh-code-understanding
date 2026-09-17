@@ -199,5 +199,3 @@ Then launch:
 Navigation also appears under **Administrator** → **Home** → **Code Understanding**. 
 
 The plugin is enabled cluster-wide through `consoles.operator.openshift.io/cluster`. If it does not appear, re-run `make enable-console-plugin`.
-
-Built for OpenShift **4.21** (`@console/pluginAPI: ^4.21.0`).
