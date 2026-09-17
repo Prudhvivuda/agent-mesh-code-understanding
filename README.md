@@ -83,10 +83,10 @@ Ensure that you have access to OpenAI-compatible endpoints for the following mod
 
    To override the default repository or branch:
     - Update `GIT_REPO` and `GIT_BRANCH` in `.env` to the desired repository and branch.
-    - Run the following command: 
-   ```make apply-secrets; make run-pipelines ARGS="--single-repo"```
+    - Run the following: 
+   ```make apply-secrets && make run-pipelines ARGS="--single-repo"```
 
-   Or without modifying `.env`:
+   OR without modifying `.env`:
    ```make run-pipelines ARGS="--single-repo" PIPELINE_GIT_REPO=https://github.com/org/repo PIPELINE_GIT_BRANCH=main```
 
 2. To run the **Code Understanding** pipeline for multiple repositories:
